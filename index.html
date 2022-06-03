@@ -1,0 +1,96 @@
+<html>
+
+<head>
+	<title>Spring</title>
+	<script src="js/three.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+	<script src='js/libs/dat.gui.min.js'></script>
+
+	<style>
+		body {
+			margin: 0;
+		}
+
+		canvas {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<script>
+		var drawSpring = function (radio, height, position, rotation, color) {
+
+			if(scene.spring){
+				console.log(scene.spring);
+			}
+
+			var geoSpring = new THREE.Geometry();
+			var increment = Math.PI / 100;
+
+			for (var i =0; i < 100; i += increment) {
+					var point = new THREE.Vector3();
+
+					point.y = i*height * radio;
+					point.x = radio * Math.sin(i);
+					point.z = radio * Math.cos(i);
+
+					geoSpring.vertices.push(point);
+			}
+			var matEsf = new THREE.PointsMaterial({ color: color, size: 0.01 });
+			spring = new THREE.Points(geoSpring, matEsf);
+
+			spring.translateX(position.x);
+			spring.translateY(position.y);
+			spring.translateZ(position.z);
+
+			spring.rotation.x += (rotation.x);
+			spring.rotation.y += (rotation.y);
+			spring.rotation.z += (rotation.z);
+			spring.name = "spring";
+			return spring;
+		}
+
+	</script>
+
+	<script>
+
+		var scene = new THREE.Scene();
+			scene.background = new THREE.Color(255, 255, 255);
+		var camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
+		var renderer = new THREE.WebGLRenderer();
+		var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		document.body.appendChild(renderer.domElement);
+
+							// (radio, height, position, 		rotation, 		color)
+		var spring = drawSpring(1, 0.1, {x:0, y:0, z:0}, {x:0, y:0, z:0} , 'red');
+		scene.add(spring);
+		// console.log(scene.getObjectByName('spring'));
+
+		options ={
+			height: 0.1,
+			updateSpring: function(){
+				scene.remove(spring);
+				spring = drawSpring(1, options.height, {x:0, y:0, z:0}, {x:0, y:0, z:0} , 'red');
+				scene.add(spring);
+			}
+		}
+
+		var datGui= new dat.GUI();
+		datGui.add(options, 'height', 0, 1).onChange(options.updateSpring).step(0.001).name('Rotar');
+
+		camera.position.z = 10;
+
+		var animate = function () {
+			requestAnimationFrame(animate);
+
+			renderer.render(scene, camera);
+		};
+
+		animate();
+	</script>
+</body>
+
+</html>
